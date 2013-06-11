@@ -1,4 +1,8 @@
-package org.gradle.api.plugins.robolectric;
+package com.novoda.gradle.robolectric;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
@@ -8,14 +12,9 @@ import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.internal.file.collections.SimpleFileCollection;
 import org.gradle.api.plugins.JavaBasePlugin;
-import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.testing.Test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 public class RobolectricPlugin implements Plugin<Project> {
 
@@ -36,12 +35,23 @@ public class RobolectricPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getPlugins().apply(JavaBasePlugin.class);
-        JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-        configureSourceSets(javaConvention);
-        configureConfigurations(project);
-        configureTest(project, javaConvention);
-        //configureBuild(project);
+        ensureValidProject(project);
+
+//
+//        JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
+//        configureSourceSets(javaConvention);
+//        configureConfigurations(project);
+//        configureTest(project, javaConvention);
+//        //configureBuild(project);
+        project.getLogger().info("feef", "feef");
+    }
+
+    private void ensureValidProject(Project project) {
+        boolean isAndroidProject = project.getPlugins().hasPlugin("android");
+        boolean isAndroidLibProject = project.getPlugins().hasPlugin("android-library");
+        if (!(isAndroidLibProject | isAndroidProject)) {
+            throw new NotAnAndroidProject();
+        }
     }
 
     void configureConfigurations(Project project) {
@@ -56,7 +66,6 @@ public class RobolectricPlugin implements Plugin<Project> {
 
         configurations.getByName(Dependency.DEFAULT_CONFIGURATION).extendsFrom(runtimeConfiguration);
     }
-
 
     private void configureSourceSets(final JavaPluginConvention pluginConvention) {
         final Project project = pluginConvention.getProject();
@@ -90,17 +99,7 @@ public class RobolectricPlugin implements Plugin<Project> {
         Test test = project.getTasks().create(TEST_TASK_NAME, Test.class);
 
         test.setClasspath(new SimpleFileCollection(new File("/tmp")));
-        project.getTasks().(JavaBasePlugin.CHECK_TASK_NAME).dependsOn(test);
         test.setDescription("Runs the unit tests.");
         test.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
-
-
     }
-//
-//    private void configureBuild(Project project) {
-//        addDependsOnTaskInOtherProjects(project.getTasks().getByName(JavaBasePlugin.BUILD_NEEDED_TASK_NAME), true,
-//                JavaBasePlugin.BUILD_NEEDED_TASK_NAME, TEST_RUNTIME_CONFIGURATION_NAME);
-//        addDependsOnTaskInOtherProjects(project.getTasks().getByName(JavaBasePlugin.BUILD_DEPENDENTS_TASK_NAME), false,
-//                JavaBasePlugin.BUILD_DEPENDENTS_TASK_NAME, TEST_RUNTIME_CONFIGURATION_NAME);
-//    }
 }
