@@ -1,29 +1,42 @@
-apply plugin: 'groovy'
+import org.gradle.api.artifacts.maven.MavenDeployment
+
 apply plugin: 'idea'
-apply plugin: 'nexus'
 apply plugin: 'java'
+apply plugin: 'maven'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 group = 'com.novoda.gradle'
 version = '0.0.1'
+ext.packaging = 'jar'
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
+def isDevBuild
+def isCiBuild
+def isReleaseBuild
 
-    dependencies {
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.2'
-    }
+def sonatypeRepositoryUrl
+
+if (hasProperty("release")) {
+    isReleaseBuild = true
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else if (hasProperty("ci")) {
+    isCiBuild = true
+    version += "-SNAPSHOT"
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+} else {
+    isDevBuild = true
 }
+
+artifacts {
+    archives jar
+}
+
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    groovy localGroovy()
     compile gradleApi()
     compile 'com.android.tools.build:gradle:0.4.2'
 }
@@ -55,32 +68,49 @@ task wrapper(type: Wrapper) {
     gradleVersion = '1.6'
 }
 
-modifyPom {
-    project {
-        name 'Gradle Robolectric plugin'
-        description 'Gradle plugin that provides test task using robolectric to overcome local unit test run'
-        url 'https://github.com/novoda/robolectric-plugin'
-        inceptionYear '2013'
+uploadArchives {
+    repositories {
+        if (isDevBuild) {
+            mavenLocal()
+        } else {
+            mavenDeployer {
+                if (isReleaseBuild) {
+                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                }
+                repository(url: sonatypeRepositoryUrl) {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+                project {
+                    name 'Gradle Robolectric plugin'
+                    group = 'com.novoda.gradle'
+                    artifactId = 'robolectric-plugin'
 
-        scm {
-            url 'https://github.com/novoda/robolectric-plugin'
-            connection 'scm:https://git@github.com/novoda/robolectric-plugin.git'
-            developerConnection 'scm:git://github.com/novoda/robolectric-plugin.git'
-        }
+                    description 'Gradle plugin that provides test task using robolectric to overcome local unit test run'
+                    url 'https://github.com/novoda/robolectric-plugin'
+                    inceptionYear '2013'
 
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
-            }
-        }
+                    scm {
+                        url 'https://github.com/novoda/robolectric-plugin'
+                        connection 'scm:https://git@github.com/novoda/robolectric-plugin.git'
+                        developerConnection 'scm:git://github.com/novoda/robolectric-plugin.git'
+                    }
 
-        developers {
-            developer {
-                id 'charroch'
-                name 'Carl-Gustaf Harroch'
-                email 'carl@novoda.com'
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'charroch'
+                            name 'Carl-Gustaf Harroch'
+                            email 'carl@novoda.com'
+                        }
+                    }
+                }
             }
         }
     }
