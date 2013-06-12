@@ -1,20 +1,23 @@
+import com.android.build.gradle.api.TestVariant
+
 buildscript {
     repositories {
         mavenCentral()
-        mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.4.2'
-        classpath group: 'com.novoda.gradle', name: 'robolectric-plugin', version: '0.0.1-SNAPSHOT'
+        classpath files('/home/acsia/dev/groovy/robolectric-plugin/build/libs/robolectric-plugin-0.0.1-SNAPSHOT.jar')
     }
 }
 
 apply plugin: 'android'
-//apply plugin: 'robolectric'
+apply plugin: 'robolectric'
 
 dependencies {
     compile files('libs/android-support-v4.jar')
 }
+
+
 
 android {
     compileSdkVersion 17
@@ -24,4 +27,15 @@ android {
         minSdkVersion 7
         targetSdkVersion 16
     }
+}
+
+
+android.applicationVariants.each { variant ->
+    TestVariant v = variant.getTestVariant()
+    if (v != null) {
+        println 'few ' + v.getInstall()
+        println 'fe3' + v.getInstall().actions.each { println it }
+        v.getInstall().dependsOn().each { println it.getDependsOn() }
+    }
+
 }

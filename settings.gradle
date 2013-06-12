@@ -1,1 +1,1 @@
-include 'examples:SimpleApp'
+include 'robolectric-plugin'

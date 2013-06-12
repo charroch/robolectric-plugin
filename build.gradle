@@ -7,7 +7,7 @@ apply plugin: 'maven'
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 group = 'com.novoda.gradle'
-version = '0.0.1'
+version = '0.0.1-SNAPSHOT'
 ext.packaging = 'jar'
 
 def isDevBuild
