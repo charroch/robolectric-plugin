@@ -13,11 +13,26 @@ buildscript {
 apply plugin: 'android'
 apply plugin: 'robolectric'
 
-dependencies {
-    compile files('libs/android-support-v4.jar')
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    maven {
+        url "https://github.com/novoda/public-mvn-repo/raw/master/releases"
+    }
 }
 
+dependencies {
+    compile files('libs/android-support-v4.jar')
 
+    // had to deploy to sonatype to get AAR to work
+    compile 'com.novoda:actionbarsherlock:4.3.2-SNAPSHOT'
+
+    robolectricCompile 'org.robolectric:robolectric:2.0-alpha-2'
+    robolectricCompile group: 'junit', name: 'junit', version: '4.+'
+}
 
 android {
     compileSdkVersion 17
@@ -29,13 +44,14 @@ android {
     }
 }
 
-
-android.applicationVariants.each { variant ->
-    TestVariant v = variant.getTestVariant()
-    if (v != null) {
-        println 'few ' + v.getInstall()
-        println 'fe3' + v.getInstall().actions.each { println it }
-        v.getInstall().dependsOn().each { println it.getDependsOn() }
+task listAndroidJars << {
+    println android.applicationVariants.each {
+        println it
     }
 
+    println android.plugin.getRuntimeJarList()
+}
+
+task listJars << {
+    configurations.robolectric.each { File file -> println file.name }
 }
