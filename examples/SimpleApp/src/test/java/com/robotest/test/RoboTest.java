@@ -1,6 +1,5 @@
 package com.robotest.test;
 
-import android.R;
 import android.app.Activity;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,12 +20,11 @@ public class RoboTest {
     @Before
     public void setUp() throws Exception {
         activity = new MainActivity();
-        activity.onCreate(null);
     }
 
     @Test
     public void shouldUpdateResultsWhenButtonIsClicked() throws Exception {
-        TextView view = (TextView) activity.findViewById(R.id.hello_world);
+        TextView view = (TextView) activity.findViewById(com.robotest.simpleapp.R.id.hello_world);
         String resultsText = view.getText().toString();
         assertThat(resultsText, equalTo("Hello World!"));
     }

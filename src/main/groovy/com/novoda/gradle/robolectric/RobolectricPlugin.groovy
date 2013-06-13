@@ -72,7 +72,10 @@ class RobolectricPlugin implements Plugin<Project> {
             robolectric.runtimeClasspath += project.files(it)
         }
 
-
+        robolectric.runtimeClasspath = robolectric.runtimeClasspath.filter {
+            it
+            true
+        }
     }
 
     private void ensureValidProject(Project project) {
@@ -103,7 +106,7 @@ class RobolectricPlugin implements Plugin<Project> {
     private void configureTest(final Project project, final JavaPluginConvention pluginConvention) {
         project.getTasks().withType(Test.class, new Action<Test>() {
             public void execute(final Test test) {
-                configureAndroid();
+                test.workingDir 'src/main'
                 test.getConventionMapping().map("testClassesDir", new Callable<Object>() {
                     public Object call() throws Exception {
                         return pluginConvention.getSourceSets().getByName("robolectric").getOutput().getClassesDir();
@@ -122,23 +125,6 @@ class RobolectricPlugin implements Plugin<Project> {
                     }
                 });
             }
-
-            def configureAndroid() {
-                project.android.sourceSets.main.java.srcDirs.each { dir ->
-                    def buildDir = dir.getAbsolutePath().split('/')
-                    buildDir = (buildDir[0..(buildDir.length - 4)] + ['build', 'classes', 'debug']).join('/')
-
-                    project.getPlugins().getPlugin('android').prepareTaskMap.each {
-                        project.sourceSets.robolectric.compileClasspath +=
-                                project.files(it.value.explodedDir.getAbsolutePath() + '/classes.jar')
-                        project.sourceSets.robolectric.runtimeClasspath +=
-                                project.files(it.value.explodedDir.getAbsolutePath() + '/classes.jar')
-                    }
-
-                    project.sourceSets.robolectric.compileClasspath += project.files(buildDir)
-                    project.sourceSets.robolectric.runtimeClasspath += project.files(buildDir)
-                }
-            }
         });
 
         Test test = project.getTasks().create(ROBOLECTRIC_TASK_NAME, Test.class);
@@ -146,6 +132,7 @@ class RobolectricPlugin implements Plugin<Project> {
         test.setDescription("Runs the unit tests using robolectric.");
         test.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
 
+        test.dependsOn(project.getTasks().findByName('robolectricClasses'))
         test.dependsOn(project.getTasks().findByName('assemble'))
     }
 

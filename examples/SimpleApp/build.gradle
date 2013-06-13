@@ -25,7 +25,7 @@ repositories {
 }
 
 dependencies {
-    compile files('libs/android-support-v4.jar')
+    //compile files('libs/android-support-v4.jar')
 
     // had to deploy to sonatype to get AAR to work
     compile 'com.novoda:actionbarsherlock:4.3.2-SNAPSHOT'
@@ -54,4 +54,9 @@ task listAndroidJars << {
 
 task listJars << {
     configurations.robolectric.each { File file -> println file.name }
+}
+
+task libs(type: Sync) {
+    from configurations.robolectric
+    into "/tmp/libs"
 }
