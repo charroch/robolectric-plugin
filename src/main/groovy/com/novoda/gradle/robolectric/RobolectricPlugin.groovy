@@ -46,19 +46,24 @@ class RobolectricPlugin implements Plugin<Project> {
     def configureAndroidDependency(Project project, JavaPluginConvention pluginConvention) {
         SourceSet robolectric = pluginConvention.getSourceSets().findByName(ROBOLECTRIC_SOURCE_SET_NAME);
 
-        ((BasePlugin)getAndroidPlugin(project)).mainSourceSet.getCompileConfigurationName()
+        ((BasePlugin) getAndroidPlugin(project)).mainSourceSet.java.srcDirs.each { dir ->
+            def buildDir = dir.getAbsolutePath().split('/')
+            buildDir = (buildDir[0..(buildDir.length - 4)] + ['build', 'classes', 'debug']).join('/')
+            robolectric.compileClasspath += project.files(buildDir)
+            robolectric.runtimeClasspath += project.files(buildDir)
+        }
 
         getAndroidPlugin(project).buildTypes.each {
             it.value.getLocalDependencies().each {
-                robolectric.compileClasspath += files(it.jarFile)
-                robolectric.runtimeClasspath += files(it.jarFile)
+                robolectric.compileClasspath += project.files(it.jarFile)
+                robolectric.runtimeClasspath += project.files(it.jarFile)
             }
         }
 
         // AAR files
         getAndroidPlugin(project).prepareTaskMap.each {
-            robolectric.compileClasspath += fileTree(dir: it.value.explodedDir, include: '*.jar')
-            robolectric.runtimeClasspath += fileTree(dir: it.value.explodedDir, include: '*.jar')
+            robolectric.compileClasspath += project.fileTree(dir: it.value.explodedDir, include: '*.jar')
+            robolectric.runtimeClasspath += project.fileTree(dir: it.value.explodedDir, include: '*.jar')
         }
 
         // Default Android jar
@@ -66,6 +71,8 @@ class RobolectricPlugin implements Plugin<Project> {
             robolectric.compileClasspath += project.files(it)
             robolectric.runtimeClasspath += project.files(it)
         }
+
+
     }
 
     private void ensureValidProject(Project project) {
@@ -99,19 +106,19 @@ class RobolectricPlugin implements Plugin<Project> {
                 configureAndroid();
                 test.getConventionMapping().map("testClassesDir", new Callable<Object>() {
                     public Object call() throws Exception {
-                        return pluginConvention.getSourceSets().getByName(ROBOLECTRIC_SOURCE_SET_NAME).getOutput().getClassesDir();
+                        return pluginConvention.getSourceSets().getByName("robolectric").getOutput().getClassesDir();
                     }
                 });
 
                 test.getConventionMapping().map("classpath", new Callable<Object>() {
                     public Object call() throws Exception {
-                        return pluginConvention.getSourceSets().getByName(ROBOLECTRIC_SOURCE_SET_NAME).getRuntimeClasspath();
+                        return pluginConvention.getSourceSets().getByName("robolectric").getRuntimeClasspath();
                     }
                 });
 
                 test.getConventionMapping().map("testSrcDirs", new Callable<Object>() {
                     public Object call() throws Exception {
-                        return new ArrayList<File>(pluginConvention.getSourceSets().getByName(ROBOLECTRIC_SOURCE_SET_NAME).getJava().getSrcDirs());
+                        return new ArrayList<File>(pluginConvention.getSourceSets().getByName("robolectric").getJava().getSrcDirs());
                     }
                 });
             }
@@ -138,6 +145,8 @@ class RobolectricPlugin implements Plugin<Project> {
         project.getTasks().getByName(JavaBasePlugin.CHECK_TASK_NAME).dependsOn(test);
         test.setDescription("Runs the unit tests using robolectric.");
         test.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
+
+        test.dependsOn(project.getTasks().findByName('assemble'))
     }
 
     private AppPlugin getAndroidPlugin(Project project) {
