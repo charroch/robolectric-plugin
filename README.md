@@ -12,10 +12,11 @@ We aim to achieve the following:
 buildscript {
     repositories {
         mavenCentral()
+        maven { url: "http://oss.sonatype.org/content/groups/public/" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.4.2'
-        classpath files('/home/acsia/dev/groovy/robolectric-plugin/build/libs/robolectric-plugin-0.0.1-SNAPSHOT.jar')
+        classpath 'com.novoda.gradle:robolectric-plugin:0.0.1-SNAPSHOT'
     }
 }
 
