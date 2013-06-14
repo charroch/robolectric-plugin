@@ -1,2 +1,14 @@
+---
 language: java
+env:
+  global:
+  - secure: |-
+      UqCvQxJQN7fSh0JIjC1+6ReYCr+gb0veSwu1R4Fec8c9AQXxdJ9Us6HCF+Xd
+      yeiAEbUxFp8b0/3sk0WxYfWIEc3SW+lHaHib+lW6GtQ5IXAiPq6k7T6uJoWH
+      hsVnmbrjjy6weI/ttoDz5o0tF6BB3mkaqufLGcEv6APcmGpPcac=
+  - secure: |-
+      eiYxxW3zozA5C4O29r7rJHuEjNi1EYudEB9ooH1ULFd/GSQ3peKapv6srz7z
+      SxFlewPcdtUk2h30299dDNRrZ30o5/5BijYB5kmki1GSwrvxaiTbOwyM29f4
+      7t1vL2JrzgS5l/uCpH0GPKwfhr8voEkUs9bURdmwhZ0XIGWFJps=
 
+script: ./gradlew clean test uploadArchives -Pci -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD
