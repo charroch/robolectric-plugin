@@ -8,7 +8,7 @@ apply plugin: 'groovy'
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 group = 'com.novoda.gradle'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 ext.packaging = 'jar'
 
 def isDevBuild
@@ -81,10 +81,10 @@ uploadArchives {
                 repository(url: sonatypeRepositoryUrl) {
                     authentication(userName: sonatypeUsername, password: sonatypePassword)
                 }
-                project {
+                pom.project {
                     name 'Gradle Robolectric plugin'
-                    group = 'com.novoda.gradle'
-                    artifactId = 'robolectric-plugin'
+                    group 'com.novoda.gradle'
+                    artifactId 'robolectric-plugin'
 
                     description 'Gradle plugin that provides test task using robolectric to overcome local unit test run'
                     url 'https://github.com/novoda/robolectric-plugin'
