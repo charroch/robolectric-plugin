@@ -12,7 +12,9 @@ We aim to achieve the following:
 buildscript {
     repositories {
         mavenCentral()
-        maven { url: "http://oss.sonatype.org/content/groups/public/" }
+        maven {
+        	url "https://oss.sonatype.org/content/repositories/snapshots"
+    	}
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.4.2'
@@ -29,9 +31,6 @@ repositories {
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
-    maven {
-        url "https://github.com/novoda/public-mvn-repo/raw/master/releases"
-    }
 }
 
 dependencies {
@@ -40,7 +39,7 @@ dependencies {
     // had to deploy to sonatype to get AAR to work
     compile 'com.novoda:actionbarsherlock:4.3.2-SNAPSHOT'
 
-    robolectricCompile 'org.robolectric:robolectric:2.0-alpha-2'
+    robolectricCompile 'org.robolectric:robolectric:2.0'
     robolectricCompile group: 'junit', name: 'junit', version: '4.+'
 }
 
@@ -53,6 +52,7 @@ android {
         targetSdkVersion 17
     }
 }
+
 ```
 
 Originally, we no plugin, you could write along the lines of the following build.gradle
