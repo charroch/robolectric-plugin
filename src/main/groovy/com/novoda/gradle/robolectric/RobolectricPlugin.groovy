@@ -146,7 +146,7 @@ class RobolectricPlugin implements Plugin<Project> {
 
     private BasePlugin getAndroidPlugin(Project project) {
         if (project.getPlugins().hasPlugin(ANDROID_LIBRARY_PLUGIN_NAME)) {
-            return (Plugin<Project>) project.getPlugins().findPlugin(ANDROID_LIBRARY_PLUGIN_NAME);
+            return (BasePlugin) project.getPlugins().findPlugin(ANDROID_LIBRARY_PLUGIN_NAME);
         }
         return (BasePlugin) project.getPlugins().findPlugin(ANDROID_PLUGIN_NAME);
     }
