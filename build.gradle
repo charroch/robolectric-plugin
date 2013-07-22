@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'com.android.tools.build:gradle:0.4.2'
+    compile 'com.android.tools.build:gradle:0.5.+'
 }
 
 jar {
