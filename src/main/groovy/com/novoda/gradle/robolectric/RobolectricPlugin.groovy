@@ -51,23 +51,13 @@ class RobolectricPlugin implements Plugin<Project> {
             robolectric.runtimeClasspath += project.files(buildDir)
         }
 
-        if (project.getPlugins().hasPlugin(ANDROID_PLUGIN_NAME)) {
-            getAndroidPlugin(project).buildTypes.each {
-                it.value.getLocalDependencies().each {
-                    robolectric.compileClasspath += project.files(it.jarFile)
-                    robolectric.runtimeClasspath += project.files(it.jarFile)
-                }
-            }
-        } else {
-            getAndroidPlugin(project).debugBuildTypeData.getLocalDependencies().each {
-                robolectric.compileClasspath += project.files(it.jarFile)
-                robolectric.runtimeClasspath += project.files(it.jarFile)
-            }
-            getAndroidPlugin(project).releaseBuildTypeData.getLocalDependencies().each {
+        getAndroidPlugin(project).variantDataList.each {
+            it.variantDependency.getJarDependencies().each {
                 robolectric.compileClasspath += project.files(it.jarFile)
                 robolectric.runtimeClasspath += project.files(it.jarFile)
             }
         }
+
         // AAR files
         getAndroidPlugin(project).prepareTaskMap.each {
             robolectric.compileClasspath += project.fileTree(dir: it.value.explodedDir, include: '*.jar')
