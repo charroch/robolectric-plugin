@@ -1,4 +1,5 @@
 package com.novoda.gradle.robolectric
+
 import com.android.build.gradle.BasePlugin
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -52,9 +53,11 @@ class RobolectricPlugin implements Plugin<Project> {
         }
 
         getAndroidPlugin(project).variantDataList.each {
-            it.variantDependency.getJarDependencies().each {
-                robolectric.compileClasspath += project.files(it.jarFile)
-                robolectric.runtimeClasspath += project.files(it.jarFile)
+            it.each {
+                println it.getVariantConfiguration().getJars().each {
+                    robolectric.compileClasspath += project.files(it.jarFile)
+                    robolectric.runtimeClasspath += project.files(it.jarFile)
+                }
             }
         }
 
