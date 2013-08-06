@@ -1,6 +1,5 @@
 package com.novoda.gradle.robolectric
 
-import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BasePlugin
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -47,16 +46,18 @@ class RobolectricPlugin implements Plugin<Project> {
         SourceSet robolectric = pluginConvention.getSourceSets().findByName(ROBOLECTRIC_SOURCE_SET_NAME);
 
         ((BasePlugin) getAndroidPlugin(project)).mainSourceSet.java.srcDirs.each { dir ->
-            def buildDir = dir.getAbsolutePath().split('/')
-            buildDir = (buildDir[0..(buildDir.length - 4)] + ['build', 'classes', 'debug']).join('/')
+            def buildDir = dir.getAbsolutePath().split(File.separator)
+            buildDir = (buildDir[0..(buildDir.length - 4)] + ['build', 'classes', 'debug']).join(File.separator)
             robolectric.compileClasspath += project.files(buildDir)
             robolectric.runtimeClasspath += project.files(buildDir)
         }
 
-        getAndroidPlugin(project).buildTypes.each {
-            it.value.getLocalDependencies().each {
-                robolectric.compileClasspath += project.files(it.jarFile)
-                robolectric.runtimeClasspath += project.files(it.jarFile)
+        getAndroidPlugin(project).variantDataList.each {
+            it.each {
+                println it.getVariantConfiguration().getJars().each {
+                    robolectric.compileClasspath += project.files(it.jarFile)
+                    robolectric.runtimeClasspath += project.files(it.jarFile)
+                }
             }
         }
 
@@ -136,8 +137,11 @@ class RobolectricPlugin implements Plugin<Project> {
         test.dependsOn(project.getTasks().findByName('assemble'))
     }
 
-    private AppPlugin getAndroidPlugin(Project project) {
-        return (AppPlugin) project.getPlugins().findPlugin(ANDROID_PLUGIN_NAME);
+    private BasePlugin getAndroidPlugin(Project project) {
+        if (project.getPlugins().hasPlugin(ANDROID_LIBRARY_PLUGIN_NAME)) {
+            return (BasePlugin) project.getPlugins().findPlugin(ANDROID_LIBRARY_PLUGIN_NAME);
+        }
+        return (BasePlugin) project.getPlugins().findPlugin(ANDROID_PLUGIN_NAME);
     }
 
 }
